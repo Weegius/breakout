@@ -1,20 +1,20 @@
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 
-const x = canvas.width / 2;
-const y = canvas.height - 30;
+let x = canvas.width / 2;
+let y = canvas.height - 30;
 
-const dx = 2;
-const dy = -2;
+let dx = 2;
+let dy = -2;
 
 const ballRadius = 10;
 
 const paddleHeight = 10;
 const paddleWidth = 75;
-const paddleX = (canvas.width - paddleWidth) / 2;
+let paddleX = (canvas.width - paddleWidth) / 2;
 
-const rightPressed = false;
-const leftPressed = false;
+let rightPressed = false;
+let leftPressed = false;
 
 const brickRowCount = 3;
 const brickColumnCount = 5;
@@ -24,7 +24,7 @@ const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
 
-const score = 0;
+let score = 0;
 
 const lives = 3;
 
@@ -41,9 +41,9 @@ function drawLives() {
 }
 
 const bricks = [];
-for (const c = 0; c < brickColumnCount; c++) {
+for (let c = 0; c < brickColumnCount; c++) {
   bricks[c] = [];
-  for (const r = 0; r < brickRowCount; r++) {
+  for (let r = 0; r < brickRowCount; r++) {
     bricks[c][r] = { x: 0, y: 0, status: 1 };
   }
 }
@@ -60,8 +60,8 @@ function mouseMoveHandler(e) {
 }
 
 function collisionDetection() {
-  for (const c = 0; c < brickColumnCount; c++) {
-    for (const r = 0; r < brickRowCount; r++) {
+  for (let c = 0; c < brickColumnCount; c++) {
+    for (let r = 0; r < brickRowCount; r++) {
       const b = bricks[c][r];
       if (b.status == 1) {
         if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight) {
@@ -110,8 +110,8 @@ function drawPaddle() {
 }
 
 function drawBricks() {
-  for (const c = 0; c < brickColumnCount; c++) {
-    for (const r = 0; r < brickRowCount; r++) {
+  for (let c = 0; c < brickColumnCount; c++) {
+    for (let r = 0; r < brickRowCount; r++) {
       if (bricks[c][r].status === 1) {
         const brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
         const brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
