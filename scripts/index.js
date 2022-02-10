@@ -1,60 +1,36 @@
 /* eslint-disable import/extensions */
 /* eslint-disable max-len */
-/* ***************************************************************
 
-***************************************************************** */
+// ***************************************************************
+
 import Ball from './Ball.js';
 import Bricks from './bricks.js';
-// **************************************************************
-// DOM references
-// **************************************************************
-
-const canvas = document.getElementById('myCanvas');
-const ctx = canvas.getContext('2d');
-
-// **************************************************************
-// Variables
-// **************************************************************
+import Paddle from './paddle.js';
+import GameLabel from './gamelabel.js';
 
 // --------------------------------------------------------------
 // Constants
 // --------------------------------------------------------------
 
-const ballRadius = 10;
+const canvas = document.getElementById('myCanvas');
+const ctx = canvas.getContext('2d');
+
 const paddleHeight = 10;
 const paddleWidth = 75;
 
-const ball = new Ball();
-const bricks = new Bricks();
-
-// --------------------------------------------------------------
-// Variables
-// --------------------------------------------------------------
-
-// * This calculation could be better as a value
 let paddleX = (canvas.width - paddleWidth) / 2;
-
-let score = 0;
-let lives = 3;
 
 let rightPressed = false;
 let leftPressed = false;
 
-// --------------------------------------------------------------
-// Setup Bricks Array
-// --------------------------------------------------------------
+const ball = new Ball(canvas.width / 2, canvas.height - 30);
+const bricks = new Bricks();
+const paddle = new Paddle(paddleX, canvas.height - paddleHeight);
+const gameLabel = new GameLabel();
 
 // **************************************************************
 // Functions
 // **************************************************************
-
-function drawPaddle() {
-  ctx.beginPath();
-  ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-  ctx.fillStyle = '#0095DD'; // * Could be good as a constant
-  ctx.fill();
-  ctx.closePath();
-}
 
 const collisionDetection = () => {
   for (let c = 0; c < bricks.cols; c += 1) {
@@ -69,10 +45,10 @@ const collisionDetection = () => {
         ) {
           ball.dy = -ball.dy;
           b.status = 0;
-          score += 1;
-          if (score === b.rows * b.cols) {
-            // eslint-disable-next-line no-alert
-            alert('YOU WIN, CONGRATULATIONS!'); // * Could be good as a constant
+          gameLabel.score += 1;
+          if (gameLabel.score === bricks.rows * bricks.cols) {
+            alert('YOU WIN, CONGRATS!');
+            gameLabel.score = 0;
             document.location.reload();
           }
         }
@@ -82,19 +58,26 @@ const collisionDetection = () => {
 };
 
 const ballmovement = () => {
+  if (
+    ball.x + ball.dx > canvas.width - ball.radius
+    || ball.x + ball.dx < ball.radius
+  ) {
+    ball.dx = -ball.dx;
+  }
+
   // Bounce the ball off the top, paddle, or hit the bottom of the canvas
-  if (ball.y + ball.dy < ballRadius) {
+  if (ball.y + ball.dy < ball.radius) {
     // hit the top
     ball.dy = -ball.dy;
-  } else if (ball.y + ball.dy > canvas.height - ballRadius) {
+  } else if (ball.y + ball.dy > canvas.height - ball.radius) {
     // hit the bottom
-    if (ball.x > paddleX && ball.x < paddleX + paddleWidth) {
+    if (ball.x > paddle.x && ball.x < paddle.x + paddleWidth) {
       // Hit the paddle
       ball.dy = -ball.dy;
     } else {
       // Lose a life
-      lives -= 1;
-      if (!lives) {
+      gameLabel.lives -= 1;
+      if (!gameLabel.lives) {
         // Game Over
         // eslint-disable-next-line no-alert
         alert('GAME OVER'); // * Could be good as a constant
@@ -115,51 +98,25 @@ const ballmovement = () => {
   }
 };
 
-function drawScore() {
-  ctx.font = '16px Arial'; // * Could be good as a constant
-  ctx.fillStyle = '#0095DD'; // * Could be good as a constant
-  ctx.fillText(`Score: ${score}`, 8, 20);
-}
-
-function drawLives() {
-  ctx.font = '16px Arial'; // * Could be good as a constant
-  ctx.fillStyle = '#0095DD'; // * Could be good as a constant
-  // * canvas.width might be better as a constants
-  ctx.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
-}
-
 // --------------------------------------------------------------
 // Game Loop
 // --------------------------------------------------------------
 
 function draw() {
-  // Clear the canvas
-  // * canvas.width, and canvas.height might be better as constants
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // Call helper functions
+  paddle.render(ctx);
   bricks.render(ctx);
   ball.render(ctx);
-  drawPaddle();
-  drawScore();
-  drawLives();
+  // drawPaddle();
+  gameLabel.render(ctx);
   collisionDetection();
   ballmovement();
 
-  // Bounce the ball off the left and right of the canvas
-  if (
-    ball.x + ball.dx > canvas.width - ballRadius
-    || ball.x + ball.dx < ballRadius
-  ) {
-    ball.dx = -ball.dx;
-  }
-
   // Move Ball
-  // *** Better as a separate function
   ball.x += ball.dx;
   ball.y += ball.dy;
 
   // Check for arrow keys
-  // *** Better as a function
   if (rightPressed && paddleX < canvas.width - paddleWidth) {
     paddleX += 7;
   } else if (leftPressed && paddleX > 0) {
@@ -193,7 +150,7 @@ function keyUpHandler(e) {
 function mouseMoveHandler(e) {
   const relativeX = e.clientX - canvas.offsetLeft;
   if (relativeX > 0 && relativeX < canvas.width) {
-    paddleX = relativeX - paddleWidth / 2;
+    paddle.x = relativeX - paddleWidth / 2;
   }
 }
 
