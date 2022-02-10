@@ -1,58 +1,110 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable max-len */
-/* eslint-disable import/no-unresolved */
 /* eslint-disable import/extensions */
+/* eslint-disable max-len */
+/* ***************************************************************
+
+***************************************************************** */
 import Ball from './Ball.js';
 import Bricks from './bricks.js';
-import Paddle from './paddle.js';
-import Score from './score.js';
-import Lives from './lives.js';
-
-// Imports --------------------------------------------
-
-// const { default: Ball } = require("./ball.js");
+// **************************************************************
+// DOM references
+// **************************************************************
 
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 
+// **************************************************************
+// Variables
+// **************************************************************
+
+// --------------------------------------------------------------
+// Constants
+// --------------------------------------------------------------
+
+const ballRadius = 10;
 const paddleHeight = 10;
 const paddleWidth = 75;
 
+const ball = new Ball();
+const bricks = new Bricks();
+
+// --------------------------------------------------------------
+// Variables
+// --------------------------------------------------------------
+
+// * This calculation could be better as a value
 let paddleX = (canvas.width - paddleWidth) / 2;
+
+let score = 0;
+let lives = 3;
 
 let rightPressed = false;
 let leftPressed = false;
 
-const ball = new Ball();
-const bricks = new Bricks();
-const lives = new Lives();
-const score = new Score();
-const paddle = new Paddle();
+// --------------------------------------------------------------
+// Setup Bricks Array
+// --------------------------------------------------------------
 
 // **************************************************************
 // Functions
 // **************************************************************
-function moveBall(ball, lives) {
-  if (
-    ball.x + ball.dx > canvas.width - ball.radius ||
-    ball.x + ball.dx < ball.radius
-  ) {
-    ball.dx = -ball.dx;
+
+function drawPaddle() {
+  ctx.beginPath();
+  ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+  ctx.fillStyle = '#0095DD'; // * Could be good as a constant
+  ctx.fill();
+  ctx.closePath();
+}
+
+const collisionDetection = () => {
+  for (let c = 0; c < bricks.cols; c += 1) {
+    for (let r = 0; r < bricks.rows; r += 1) {
+      const b = bricks.getBrick(c, r);
+      if (b.status === 1) {
+        if (
+          ball.x > b.x
+          && ball.x < b.x + b.width
+          && ball.y > b.y
+          && ball.y < b.y + b.height
+        ) {
+          ball.dy = -ball.dy;
+          b.status = 0;
+          score += 1;
+          if (score === b.rows * b.cols) {
+            // eslint-disable-next-line no-alert
+            alert('YOU WIN, CONGRATULATIONS!'); // * Could be good as a constant
+            document.location.reload();
+          }
+        }
+      }
+    }
   }
-  if (ball.y + ball.dy < ball.radius) {
+};
+
+const ballmovement = () => {
+  // Bounce the ball off the top, paddle, or hit the bottom of the canvas
+  if (ball.y + ball.dy < ballRadius) {
+    // hit the top
     ball.dy = -ball.dy;
-  } else if (ball.y + ball.dy > canvas.height - ball.radius) {
-    if (ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
+  } else if (ball.y + ball.dy > canvas.height - ballRadius) {
+    // hit the bottom
+    if (ball.x > paddleX && ball.x < paddleX + paddleWidth) {
+      // Hit the paddle
       ball.dy = -ball.dy;
     } else {
+      // Lose a life
       lives -= 1;
-      if (lives < 0) {
+      if (!lives) {
+        // Game Over
         // eslint-disable-next-line no-alert
-        alert("Game Over! Better luck next time!");
+        alert('GAME OVER'); // * Could be good as a constant
+        ball.x = 200;
+        ball.y = 200;
         document.location.reload();
-        // eslint-disable-next-line no-use-before-define
-        requestAnimationFrame(draw());
       } else {
+        // Start the over you hit the bottom
+        // ** Set the position of ball and paddle
+        // ** And set the speed and direction of the ball
         ball.x = canvas.width / 2;
         ball.y = canvas.height - 30;
         ball.dx = 2;
@@ -61,79 +113,60 @@ function moveBall(ball, lives) {
       }
     }
   }
+};
+
+function drawScore() {
+  ctx.font = '16px Arial'; // * Could be good as a constant
+  ctx.fillStyle = '#0095DD'; // * Could be good as a constant
+  ctx.fillText(`Score: ${score}`, 8, 20);
 }
 
-// function collisions(bricks, ball, score) {
-//   for (let c = 0; c < bricks.cols; c += 1) {
-//     for (let r = 0; r < bricks.rows; r += 1) {
-//       if (bricks.bricks[c][r].status == 1) {
-//         if (
-//           ball.x > bricks.bricks[c][r].x &&
-//           ball.x < bricks.bricks[c][r].x + bricks.bricks[c][r].width &&
-//           ball.y > bricks.bricks[c][r].y &&
-//           ball.y < bricks.bricks[c][r].y + bricks.bricks[c][r].height
-//         ) {
-//           ball.dy = -ball.dy;
-//           bricks.bricks[c][r].status = 0;
-//           score += 1;
-//         }
-//       }
-//     }
-//   }
-//   if (score === bricks.rows * bricks.cols) {
-//     // gameLabel.render(ctx);
-//     // eslint-disable-next-line no-alert
-//     alert("You Win!");
-//     score = 0;
-//     document.location.reload();
-//     // eslint-disable-next-line no-use-before-define
-//     // requestAnimationFrame(draw()); // Needed for Chrome to end game
-//   }
-// }
-// collisions(ball, bricks, score) {
-//   for (let c = 0; c < bricks.columnCount; c += 1) {
-//     for (let r = 0; r < bricks.rowCount; r += 1) {
-//       const brick = bricks[c][r];
-//       if (brick.status === 1) {
-//         if (ball.x > brick.x && ball.x < brick.x + bricks.width
-//           && ball.y > brick.y && ball.y < brick.y + bricks.height) {
-//           ball.dy = -ball.dy;
-//           brick.status = 0;
-//           score.points += 1;
-//           if (score.points === bricks.rowCount * bricks.columnCount) {
-//             alert("YOU WIN, CONGRATS!");
-//             document.location.reload();
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
+function drawLives() {
+  ctx.font = '16px Arial'; // * Could be good as a constant
+  ctx.fillStyle = '#0095DD'; // * Could be good as a constant
+  // * canvas.width might be better as a constants
+  ctx.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
+}
 
 // --------------------------------------------------------------
 // Game Loop
 // --------------------------------------------------------------
 
 function draw() {
+  // Clear the canvas
+  // * canvas.width, and canvas.height might be better as constants
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+  // Call helper functions
   bricks.render(ctx);
   ball.render(ctx);
-  paddle.render(ctx);
-  lives.render(ctx);
-  // score.render(ctx);
+  drawPaddle();
+  drawScore();
+  drawLives();
+  collisionDetection();
+  ballmovement();
 
-  moveBall(ball, lives);
-  // collisions(bricks, ball, score);
-
-  if (rightPressed) {
-    paddle.x += 7;
-  } else if (leftPressed) {
-    paddle.x -= 7;
+  // Bounce the ball off the left and right of the canvas
+  if (
+    ball.x + ball.dx > canvas.width - ballRadius
+    || ball.x + ball.dx < ballRadius
+  ) {
+    ball.dx = -ball.dx;
   }
+
+  // Move Ball
+  // *** Better as a separate function
   ball.x += ball.dx;
   ball.y += ball.dy;
-  // console.log(ball);
+
+  // Check for arrow keys
+  // *** Better as a function
+  if (rightPressed && paddleX < canvas.width - paddleWidth) {
+    paddleX += 7;
+  } else if (leftPressed && paddleX > 0) {
+    paddleX -= 7;
+  }
+
+  // Draw the screen again
   requestAnimationFrame(draw);
 }
 

@@ -21,6 +21,10 @@ class Bricks {
     }
   }
 
+  getBrick(c, r) {
+    return this.bricks[c][r];
+  }
+
   render(ctx) {
     for (let c = 0; c < this.cols; c += 1) {
       for (let r = 0; r < this.rows; r += 1) {
