@@ -107,7 +107,6 @@ function draw() {
   paddle.render(ctx);
   bricks.render(ctx);
   ball.render(ctx);
-  // drawPaddle();
   gameLabel.render(ctx);
   collisionDetection();
   ballmovement();
