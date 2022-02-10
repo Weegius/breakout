@@ -3,19 +3,19 @@
 import Sprite from './Sprite.js';
 
 class Paddle extends Sprite {
-  constructor(x, y, width, height, speed, color) {
+  constructor(x, y, width = 75, height = 10, color = 'green') {
     super(x, y, width, height, color);
-    this.speed = speed;
-    this.color = color;
+  }
+
+  moveBy(dx, dy) {
+    this.x += dx;
+    this.y += dy;
+  }
+
+  moveTo(x, y) {
+    this.x = x;
+    this.y = y;
   }
 }
 
 export default Paddle;
-
-// function drawPaddle() {
-//   ctx.beginPath();
-//   ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-//   ctx.fillStyle = '#0095DD'; // * Could be good as a constant
-//   ctx.fill();
-//   ctx.closePath();
-// }

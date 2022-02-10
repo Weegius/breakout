@@ -1,6 +1,16 @@
-// function drawLives() {
-//   ctx.font = '16px Arial'; // * Could be good as a constant
-//   ctx.fillStyle = '#0095DD'; // * Could be good as a constant
-//   // * canvas.width might be better as a constants
-//   ctx.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
-// }
+class Lives {
+  constructor(canvasWidth, color = 'black', font = '16px Arial') {
+    this.canvasWidth = canvasWidth;
+    this.color = color;
+    this.font = font;
+
+    this.lives = 3;
+  }
+
+  render(ctx) {
+    ctx.font = this.font;
+    ctx.fillStyle = this.color;
+    ctx.fillText(`Lives: ${this.lives}`, this.canvasWidth - 65, 20);
+  }
+}
+export default Lives;
